@@ -1,0 +1,51 @@
+# To get started with security, check out the documentation:
+# http://symfony.com/doc/current/book/security.html
+security:
+    encoders:
+        Symfony\Component\Security\Core\User\User: plaintext
+        AppBundle\Entity\User: bcrypt
+
+    # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
+    providers:
+        in_memory:
+            memory:
+                users:
+                    paul:
+                        password: paul
+                        roles: 'ROLE_USER'
+                    admin:
+                        password: admin
+                        roles: 'ROLE_ADMIN'
+        users:
+            entity:
+                class: AppBundle\Entity\User
+                property: username
+
+    firewalls:
+        # disables authentication for assets and the profiler, adapt it according to your needs
+        dev:
+            pattern: "^/(_(profiler|wdt)|css|images|js)/"
+            security: false
+
+        main:
+            pattern: "^/"
+            anonymous: ~
+            form_login: 
+                login_path: app_login
+                check_path: app_login_check
+                username_parameter: my_login
+                password_parameter: my_secret
+                provider: in_memory
+            switch_user: ~
+            # http://symfony.com/doc/current/cookbook/security/form_login_setup.html
+            logout:
+                path: app_logout
+                target: app_login
+
+    role_hierarchy:
+        ROLE_ADMIN: [ROLE_USER, ROLE_ALLOWED_TO_SWITCH]
+
+    access_control:
+        -
+            path: '^/game'
+            roles: ['ROLE_USER']
